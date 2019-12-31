@@ -30,7 +30,7 @@ fun Date.add(value: Int, units: TimeUnits) : Date{
 }
 
 fun Date.humanizeDiff(date: Date = Date()): String {
-    val diff = (Date().time - date.time) / 1000
+    val diff = (date.time - this.time) / 1000
     val mins: Int = (diff/60).toInt()
     val hours: Int = ((diff/60)/60).toInt()
     val days: Int = ((((diff/60)/60)/24).toInt())
@@ -39,14 +39,25 @@ fun Date.humanizeDiff(date: Date = Date()): String {
         in 0..1 -> "только что"
         in 1..45 -> "несколько секунд назад"
         in 45..75 -> "минуту назад"
-        in 75..2700 -> "${diff/60} ${TimeUnits.MINUTE.plural(mins)} назад"
+        in 75..2700 -> " ${TimeUnits.MINUTE.plural(mins)} назад"
         in 2700..4500 -> "час назад"
-        in 4500..79200 -> "${(diff/60)/60} ${TimeUnits.HOUR.plural(hours)} часов назад"
+        in 4500..79200 -> "${TimeUnits.HOUR.plural(hours)} назад"
         in 79200..93600 -> "день назад"
-        in 93600..31104000 -> "${((diff/60)/60)/24} ${TimeUnits.DAY.plural(days)} дней назад"
+        in 93600..31104000 -> "${TimeUnits.DAY.plural(days)} назад"
         in 31104000..Long.MAX_VALUE -> "более года назад"
+        in -1..0 -> "только что"
+        in -45..-1 -> "через несколько секунд"
+        in -75..-45 -> "через минуту"
+        in -2700..-45 -> "через ${TimeUnits.MINUTE.plural(mins)}"
+        in -4500..-2700 -> "через час"
+        in -79200..-4500 -> "через ${TimeUnits.HOUR.plural(hours)}"
+        in -93600..-79200 -> "через день"
+        in -31104000..-93600 -> "через ${TimeUnits.DAY.plural(days)}"
+        in  Long.MIN_VALUE..-31104000 -> "более чем через год"
+
+
         else -> {
-           "hz"
+           "error value"
         }
     }
 
@@ -58,49 +69,65 @@ fun Date.humanizeDiff(date: Date = Date()): String {
 enum class TimeUnits{
     SECOND{
         override fun plural(value: Int): String {
-           if (value in 5..20){
-               return "$value секунд"
+         var resignedValue: Int = value
+          if (value < 0){
+              resignedValue = value * -1
+          }
+           if (resignedValue in 5..20){
+               return "$resignedValue секунд"
            }
-            return when(value % 10){
-                1 -> "$value секунду"
-                2,3,4 -> "$value секунды"
-                else -> "$value секунд"
+            return when(resignedValue % 10){
+                1 -> "$resignedValue секунду"
+                2,3,4 -> "$resignedValue секунды"
+                else -> "$resignedValue секунд"
             }
         }
     },
     MINUTE{
         override fun plural(value: Int): String {
-            if (value in 5..20){
-                return "$value минут"
+            var resignedValue: Int = value
+            if (value < 0){
+                resignedValue = value * -1
             }
-            return when(value % 10){
-                1 -> "$value минуту"
-                2,3,4 -> "$value минуты"
-                else -> "$value минут"
+            if (resignedValue in 5..20){
+                return "$resignedValue минут"
+            }
+            return when(resignedValue % 10){
+                1 -> "$resignedValue минуту"
+                2,3,4 -> "$resignedValue минуты"
+                else -> "$resignedValue минут"
             }
         }
     },
     HOUR{
         override fun plural(value: Int): String {
-            if (value in 5..20){
-                return "$value часов"
+            var resignedValue: Int = value
+            if (value < 0){
+                resignedValue = value * -1
             }
-            return when(value % 10){
-                1 -> "$value час"
-                2,3,4 -> "$value часа"
-                else -> "$value часов"
+            if (resignedValue in 5..20){
+                return "$resignedValue часов"
+            }
+            return when(resignedValue % 10){
+                1 -> "$resignedValue час"
+                2,3,4 -> "$resignedValue часа"
+                else -> "$resignedValue часов"
             }
         }
     },
     DAY{
         override fun plural(value: Int): String {
-            if (value in 5..20){
-                return "$value дней"
+            var resignedValue: Int = value
+            if (value < 0){
+                resignedValue = value * -1
             }
-            return when(value % 10){
-                1 -> "$value день"
-                2,3,4 -> "$value дня"
-                else -> "$value дней"
+            if (resignedValue in 5..20){
+                return "$resignedValue дней"
+            }
+            return when(resignedValue % 10){
+                1 -> "$resignedValue день"
+                2,3,4 -> "$resignedValue дня"
+                else -> "$resignedValue дней"
             }
         }
     };

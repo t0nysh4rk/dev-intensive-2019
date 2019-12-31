@@ -4,7 +4,7 @@ import java.lang.StringBuilder
 
 object Utils {
    fun parseFullName(fullName: String?) : Pair<String?, String?>{
-      
+
        val splittedName : List<String>? = fullName?.split(" ")
        val  firstName = splittedName?.getOrNull(0)
        val  lastName = splittedName?.getOrNull(1)
@@ -49,6 +49,9 @@ object Utils {
     fun toInitials(firstName: String?, lastName: String?): String? {
        var result = StringBuilder()
         if (firstName.isNullOrEmpty() && lastName.isNullOrEmpty()){
+            return null
+        }
+        else if (firstName?.isBlank()!! && lastName?.isBlank()!!){
             return null
         }
          if (!firstName.isNullOrEmpty())
