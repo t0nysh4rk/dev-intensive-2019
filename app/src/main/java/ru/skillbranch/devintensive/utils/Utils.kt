@@ -48,17 +48,23 @@ object Utils {
 
     fun toInitials(firstName: String?, lastName: String?): String? {
        var result = StringBuilder()
-        if (firstName.isNullOrEmpty() && lastName.isNullOrEmpty()){
-            return null
-        }
-        else if (firstName?.isBlank()!! && lastName?.isBlank()!!){
-            return null
-        }
-         if (!firstName.isNullOrEmpty())
-            result.append(firstName?.take(1)?.toUpperCase())
 
-        if(!lastName.isNullOrEmpty())
-            result.append(lastName?.take(1)?.toUpperCase())
+        if ((firstName.isNullOrBlank() || firstName.isEmpty()) && ((lastName.isNullOrBlank() || lastName.isEmpty()))){
+            return null
+        }
+
+    if (!firstName.isNullOrEmpty()){
+       if (!firstName.isBlank()){
+           result.append(firstName.take(1).toUpperCase())
+       }
+    }
+
+        if (!lastName.isNullOrEmpty()){
+            if (!lastName.isBlank()){
+                result.append(lastName.take(1).toUpperCase())
+            }
+        }
+
 
 
         return result.toString()
