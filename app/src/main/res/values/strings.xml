@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Dev-intensive</string>
+    <string name="enter_message_hint">Введите текст</string>
+</resources>

@@ -64,7 +64,7 @@ object Utils {
                 result.append(lastName.take(1).toUpperCase())
             }
         }
-
+    var b : Boolean? = null
 
 
         return result.toString()
