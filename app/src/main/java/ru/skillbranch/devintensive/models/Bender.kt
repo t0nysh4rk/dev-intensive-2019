@@ -13,6 +13,9 @@ class Bender (var status: Status = Status.NORMAL, var question: Question = Quest
     }
 
     fun listenAnswer(answer: String) : Pair<String, Triple<Int, Int, Int>> {
+       if (question == Question.IDLE){
+           return Pair("На этом все, вопросов больше нет", status.color)
+       }
         val validatedAnswer = validateAnswer(answer)
         if (validatedAnswer.isEmpty()||validatedAnswer.isBlank()) {
             return if (question.answers.contains(answer)) {

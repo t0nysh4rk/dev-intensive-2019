@@ -39,25 +39,17 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         val status = savedInstanceState?.getString("STATUS") ?: Bender.Status.NORMAL.name
         val question = savedInstanceState?.getString("QUESTION") ?: Bender.Question.NAME.name
         val inputText = savedInstanceState?.getString("INPUT_TEXT") ?: ""
-      //  val textViewMessage = savedInstanceState?.getString("BENDER_MESSAGE")
         val tryCount = savedInstanceState?.getInt("TRY_COUNTER") ?: 0
         messageEt.setText(inputText)
         Log.d("M_MainActivity","onCreate $status $question" )
 
         benderObj = Bender(Bender.Status.valueOf(status), Bender.Question.valueOf(question))
 
-//        if (textViewMessage.isNullOrBlank()) {
-//            textV.text = benderObj.askQuestion()
-//        }
-//        else{
-//            textV.text = textViewMessage
-//        }
+
+        val (r,g,b) = benderObj.status.color
+        benderImage.setColorFilter(Color.rgb(r, g, b), PorterDuff.Mode.MULTIPLY)
 
         textV.text = benderObj.askQuestion()
-        changeBenderColor(
-            benderObj.status.color.first,
-            benderObj.status.color.second,
-            benderObj.status.color.third)
 
         benderObj.tryCount = tryCount
 
@@ -105,24 +97,21 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             val (phrase, color) = benderObj.listenAnswer(messageEt.text.toString())
             messageEt.setText("")
             val(r,g,b) = color
-            changeBenderColor(r, g, b)
+            benderImage.setColorFilter(Color.rgb(r, g, b), PorterDuff.Mode.MULTIPLY)
             textV.text = phrase
             if (this.isKeyboardOpen())
                 hideKeyboard()
         }
     }
 
-    private fun changeBenderColor(r: Int, g: Int, b: Int) {
-        benderImage.setColorFilter(Color.rgb(r, g, b), PorterDuff.Mode.MULTIPLY)
-    }
+
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putInt("TRY_COUNTER", benderObj.tryCount)
-        //outState.putString("BENDER_MESSAGE", textV.text.toString())
         outState.putString("STATUS", benderObj.status.name)
         outState.putString("QUESTION", benderObj.question.name)
         outState.putString("INPUT_TEXT", messageEt.text.toString())
+        outState.putInt("TRY_COUNTER", benderObj.tryCount)
         Log.d("M_MainActivity", "onSaveInstanceState ${benderObj.status.name} ${benderObj.question.name}")
     }
 
