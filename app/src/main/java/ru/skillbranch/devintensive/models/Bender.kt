@@ -14,11 +14,11 @@ class Bender (var status: Status = Status.NORMAL, var question: Question = Quest
 
     fun listenAnswer(answer: String) : Pair<String, Triple<Int, Int, Int>> {
        if (question == Question.IDLE){
-           return Pair("На этом все, вопросов больше нет", status.color)
+           return Pair(Question.IDLE.question, status.color)
        }
         val validatedAnswer = validateAnswer(answer)
         if (validatedAnswer.isEmpty()||validatedAnswer.isBlank()) {
-            return if (question.answers.contains(answer)) {
+            return if (question.answers.contains(answer.toLowerCase())) {
                 question = question.nextQuestion()
                 "Отлично - ты справился\n${question.question}" to status.color
             } else {
@@ -101,7 +101,7 @@ class Bender (var status: Status = Status.NORMAL, var question: Question = Quest
         }
     }
     enum class Question(val question: String, val answers: List<String>) {
-        NAME("Как меня зовут?", listOf("Бендер", "Bender")) {
+        NAME("Как меня зовут?", listOf("бендер", "bender")) {
             override fun nextQuestion(): Question = PROFESSION
 
         },

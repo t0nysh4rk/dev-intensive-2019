@@ -54,6 +54,7 @@
                    android:layout_height="@dimen/button_large_24"
                    android:src="@drawable/ic_send_black_24dp"
                     android:layout_gravity="center"
+                   android:layout_marginRight="@dimen/spacing_normal_16"
         />
         
         </LinearLayout>
