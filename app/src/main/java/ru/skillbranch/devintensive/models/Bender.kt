@@ -27,7 +27,7 @@ class Bender (var status: Status = Status.NORMAL, var question: Question = Quest
                     in 0..2 -> {
                         tryCount++
                         status = status.nextStatus()
-                        "Это не правильный ответ!\n${question.question}" to status.color
+                        "Это не правильный ответ\n${question.question}" to status.color
                     }
                     else -> {
                         tryCount = 0
@@ -43,7 +43,7 @@ class Bender (var status: Status = Status.NORMAL, var question: Question = Quest
             }
 
         } else {
-            return "$validatedAnswer \n${question.question}" to status.color
+            return "$validatedAnswer\n${question.question}" to status.color
         }
     }
 
@@ -101,7 +101,7 @@ class Bender (var status: Status = Status.NORMAL, var question: Question = Quest
         }
     }
     enum class Question(val question: String, val answers: List<String>) {
-        NAME("Как меня зовут?", listOf("Бендер", "bender")) {
+        NAME("Как меня зовут?", listOf("Бендер", "Bender")) {
             override fun nextQuestion(): Question = PROFESSION
 
         },
