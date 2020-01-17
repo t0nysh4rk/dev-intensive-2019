@@ -39,7 +39,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         val status = savedInstanceState?.getString("STATUS") ?: Bender.Status.NORMAL.name
         val question = savedInstanceState?.getString("QUESTION") ?: Bender.Question.NAME.name
         val inputText = savedInstanceState?.getString("INPUT_TEXT") ?: ""
-        val tryCount = savedInstanceState?.getInt("TRY_COUNTER") ?: 0
+       // val tryCount = savedInstanceState?.getInt("TRY_COUNTER") ?: 0
         messageEt.setText(inputText)
         Log.d("M_MainActivity","onCreate $status $question" )
 
@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
         textV.text = benderObj.askQuestion()
 
-        benderObj.tryCount = tryCount
+      //  benderObj.tryCount = tryCount
 
         sendButton.setOnClickListener(this)
         messageEt.setOnEditorActionListener { _, actionId, _ ->
@@ -111,7 +111,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         outState.putString("STATUS", benderObj.status.name)
         outState.putString("QUESTION", benderObj.question.name)
         outState.putString("INPUT_TEXT", messageEt.text.toString())
-        outState.putInt("TRY_COUNTER", benderObj.tryCount)
+            // outState.putInt("TRY_COUNTER", benderObj.tryCount)
         Log.d("M_MainActivity", "onSaveInstanceState ${benderObj.status.name} ${benderObj.question.name}")
     }
 
