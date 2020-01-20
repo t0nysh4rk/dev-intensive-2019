@@ -39,27 +39,32 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         val status = savedInstanceState?.getString("STATUS") ?: Bender.Status.NORMAL.name
         val question = savedInstanceState?.getString("QUESTION") ?: Bender.Question.NAME.name
         val inputText = savedInstanceState?.getString("INPUT_TEXT") ?: ""
-       // val tryCount = savedInstanceState?.getInt("TRY_COUNTER") ?: 0
+
         messageEt.setText(inputText)
         Log.d("M_MainActivity","onCreate $status $question" )
 
         benderObj = Bender(Bender.Status.valueOf(status), Bender.Question.valueOf(question))
 
 
-        val (r,g,b) = benderObj.status.color
-        benderImage.setColorFilter(Color.rgb(r, g, b), PorterDuff.Mode.MULTIPLY)
+        setBenderColor(benderObj.status.color)
 
         textV.text = benderObj.askQuestion()
 
-      //  benderObj.tryCount = tryCount
 
         sendButton.setOnClickListener(this)
         messageEt.setOnEditorActionListener { _, actionId, _ ->
             when(actionId){
-            EditorInfo.IME_ACTION_DONE -> { hideKeyboard(); true }
+            EditorInfo.IME_ACTION_DONE -> {
+                sendAnswer()
+                hideKeyboard(); true }
             else -> false
         }
         }
+    }
+
+    private fun setBenderColor(color: Triple<Int, Int, Int>) {
+        val (r, g, b) = color
+        benderImage.setColorFilter(Color.rgb(r, g, b), PorterDuff.Mode.MULTIPLY)
     }
 
     override fun onRestart() {
@@ -94,16 +99,17 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onClick(v:View){
         if(v?.id == R.id.iv_send){
-           val (phrase, color) = benderObj.listenAnswer(messageEt.text.toString())
-            messageEt.setText("")
-            val(r,g,b) = color
-            benderImage.setColorFilter(Color.rgb(r, g, b), PorterDuff.Mode.MULTIPLY)
-            textV.text = phrase
-            if (this.isKeyboardOpen())
-                hideKeyboard()
+            sendAnswer()
+
         }
     }
 
+    private fun sendAnswer() {
+        val (phrase, color) = benderObj.listenAnswer(messageEt.text.toString())
+        messageEt.setText("")
+        setBenderColor(color)
+        textV.text = phrase
+    }
 
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -111,7 +117,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         outState.putString("STATUS", benderObj.status.name)
         outState.putString("QUESTION", benderObj.question.name)
         outState.putString("INPUT_TEXT", messageEt.text.toString())
-            // outState.putInt("TRY_COUNTER", benderObj.tryCount)
         Log.d("M_MainActivity", "onSaveInstanceState ${benderObj.status.name} ${benderObj.question.name}")
     }
 
