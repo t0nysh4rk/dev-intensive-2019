@@ -1,5 +1,7 @@
 package ru.skillbranch.devintensive.utils
 
+
+import android.graphics.Color
 import java.lang.StringBuilder
 
 object Utils {
@@ -19,6 +21,23 @@ object Utils {
        }
    return Pair(firstName, lastName)
    }
+
+    fun parseFullName(fullName: String?, delimiter: String) : Pair<String?, String?>{
+
+        val splittedName : List<String>? = fullName?.split(delimiter)
+        val  firstName = splittedName?.getOrNull(0)
+        val  lastName = splittedName?.getOrNull(1)
+        if (firstName.isNullOrEmpty() && lastName.isNullOrEmpty()){
+            return Pair(null, null)
+        }
+        else if (firstName.isNullOrEmpty()){
+            return Pair(null, lastName)
+        }
+        else if (lastName.isNullOrEmpty()){
+            return Pair(firstName, null)
+        }
+        return Pair(firstName, lastName)
+    }
 
     fun transliteration(payLoad: String, divider: String = " "): String {
         val hashmap = hashMapOf<String, String>("А" to "A",
@@ -68,6 +87,19 @@ object Utils {
 
 
         return result.toString()
+    }
+
+
+    fun validateUrl(url: String) : Boolean{
+
+
+            if ( !url.contains(("(join)|(enterprise)|(features)|(topics)|(collections)|(trending)|(events)|(marketplace)|(pricing)|(nonprofit)|(customer-stories)|(security)|(login)").toRegex())
+               && url.contains("^(((https://)?(www\\.)?)(github\\.com/)([A-z0-9-]{1,16})/?)$".toRegex())) {
+                return true
+            }
+
+
+        return false
     }
 }
 
