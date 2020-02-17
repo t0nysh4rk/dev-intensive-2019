@@ -16,6 +16,8 @@ import android.view.View
 import android.view.ViewOutlineProvider
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.ColorRes
+import androidx.annotation.Dimension
 import androidx.annotation.DrawableRes
 import androidx.annotation.Nullable
 import androidx.appcompat.widget.AppCompatImageView
@@ -40,7 +42,7 @@ class CircleImageView @JvmOverloads constructor(
 
     }
 
-    private var cv_borderWidth = DEFAULT_BORDER_WIDTH
+   @Dimension private var  cv_borderWidth = DEFAULT_BORDER_WIDTH
     private var cv_borderColor: Int = Color.parseColor("#ECECEC")
     private var mTextMode = DEFAULT_TEXT_MODE_VALUE
     private var mAvatarColor: Int = Color.parseColor("#FC4C4C")
@@ -125,6 +127,23 @@ class CircleImageView @JvmOverloads constructor(
         updateCircleDrawBounds(mBackgroundBounds)
 
 }
+     @Dimension fun getBorderWidth():Int{
+        return cv_borderWidth.toInt()
+    }
+
+   fun setBorderWidth(@Dimension dp: Int){
+      cv_borderWidth = dp.toFloat()
+    }
+   fun getBorderColor():Int{
+      return cv_borderColor
+    }
+   fun setBorderColor(hex:String){
+       cv_borderColor = Color.parseColor(hex)
+
+   }
+   fun setBorderColor(@ColorRes colorId: Int){
+       cv_borderColor = colorId
+   }
 
     override fun setImageResource(@DrawableRes resId: Int) {
         super.setImageResource(resId)
@@ -146,6 +165,8 @@ class CircleImageView @JvmOverloads constructor(
         super.setImageURI(uri)
         setupBitmap()
     }
+
+
 
     private fun getBitmapFromDrawable(drawable: Drawable?): Bitmap? {
         if (drawable == null) {
@@ -210,6 +231,11 @@ class CircleImageView @JvmOverloads constructor(
         }
 
         val splittedString = Utils.parseFullName(avatarText, "_")
+        if (splittedString.first.isNullOrBlank()){
+            return splittedString.second?.take(1)?.toUpperCase()
+        } else if (splittedString.second.isNullOrBlank()){
+            return splittedString.first!!.take(1).toUpperCase()
+        }
         return Utils.toInitials(splittedString.first, splittedString.second)
     }
 
