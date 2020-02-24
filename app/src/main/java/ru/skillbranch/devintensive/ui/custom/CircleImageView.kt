@@ -3,6 +3,7 @@ package ru.skillbranch.devintensive.ui.custom
 
 import android.annotation.TargetApi
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.*
 import android.graphics.Paint.ANTI_ALIAS_FLAG
 import android.graphics.Paint.Align
@@ -14,17 +15,12 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.View
 import android.view.ViewOutlineProvider
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.annotation.ColorRes
 import androidx.annotation.Dimension
 import androidx.annotation.DrawableRes
 import androidx.annotation.Nullable
 import androidx.appcompat.widget.AppCompatImageView
-import kotlinx.android.synthetic.main.activity_profile.view.*
 import ru.skillbranch.devintensive.R
-import ru.skillbranch.devintensive.models.Profile
-import ru.skillbranch.devintensive.ui.profile.ProfileActivity
 import ru.skillbranch.devintensive.utils.Utils
 
 
@@ -34,19 +30,20 @@ class CircleImageView @JvmOverloads constructor(
     defStyleAttr: Int = 0) :
     AppCompatImageView(context, attrs, defStyleAttr) {
 
-    companion object {
-        const val DEFAULT_BORDER_WIDTH = 2.0f
-        const val DEFAULT_TEXT_MODE_VALUE = false
+
+    private val DEFAULT_TEXT_SIZE = 90
+    private val DEFAULT_BORDER_COLOR = Color.WHITE
+    private val DEFAULT_AVATAR_COLOR = Color.parseColor("#FC4C4C")
+    private val DEFAULT_AVATAR_TEXT_COLOR = Color.WHITE
+    private val DEFAULT_BORDER_WIDTH = 2
+    private val DEFAULT_TEXT = "WW"
 
 
-
-    }
-
-   @Dimension private var  cv_borderWidth = DEFAULT_BORDER_WIDTH
-    private var cv_borderColor: Int = Color.parseColor("#ECECEC")
-    private var mTextMode = DEFAULT_TEXT_MODE_VALUE
-    private var mAvatarColor: Int = Color.parseColor("#FC4C4C")
-    private var mAvatarTextColor: Int = Color.parseColor("#ECECEC")
+    @Dimension private var  mBorderWidth: Float = dpToPx(DEFAULT_BORDER_WIDTH)
+    private var mBorderColor: Int = Color.WHITE
+    private var mTextMode = true
+    private var mAvatarColor: Int = DEFAULT_AVATAR_COLOR
+    private var mAvatarTextColor: Int = DEFAULT_AVATAR_TEXT_COLOR
 
     private lateinit var mBitmapShader: Shader
     private lateinit var mShaderMatrix: Matrix
@@ -54,7 +51,7 @@ class CircleImageView @JvmOverloads constructor(
     private lateinit var mBitmapDrawBounds: RectF
     private lateinit var mStrokeBounds: RectF
 
-    private lateinit var mBitmap: Bitmap
+    private var mBitmap: Bitmap? = null
 
     private lateinit var mBitmapPaint: Paint
     private lateinit var mStrokePaint: Paint
@@ -64,27 +61,25 @@ class CircleImageView @JvmOverloads constructor(
 
     private lateinit var mBackgroundPaint: Paint
     private lateinit var mBackgroundBounds: RectF
+    private var mInitials: String? = null
 
-
-    private var mText: String? = null
-
+    private var mText: String? = DEFAULT_TEXT
+    private var mTextSize = DEFAULT_TEXT_SIZE
     private var mInitialized = false
 
 
     init {
-         var textSize = 90
-         val defBorderColor = Color.parseColor("#ECECEC")
-         val defAvatarColor = Color.parseColor("#FC4C4C")
-         val defAvatarTextColor = Color.parseColor("#ECECEC")
+
+
 
         if (attrs != null) {
             val a = context.obtainStyledAttributes(attrs, R.styleable.CircleImageView, 0, 0)
-            cv_borderWidth = a.getDimension(R.styleable.CircleImageView_cv_borderWidth, DEFAULT_BORDER_WIDTH)
-            cv_borderColor = a.getColor(R.styleable.CircleImageView_cv_borderColor, defBorderColor)
-            mTextMode = a.getBoolean(R.styleable.CircleImageView_AvatarTextModeEnabled, DEFAULT_TEXT_MODE_VALUE)
-            mAvatarColor = a.getColor(R.styleable.CircleImageView_avatarColor, defAvatarColor)
-            mAvatarTextColor = a.getColor(R.styleable.CircleImageView_avatarColor, defAvatarTextColor)
-            textSize =a.getInt(R.styleable.CircleImageView_AvatarTextSize, textSize)
+            mBorderWidth = a.getDimension(R.styleable.CircleImageView_cv_borderWidth, dpToPx(DEFAULT_BORDER_WIDTH))
+            mBorderColor = a.getColor(R.styleable.CircleImageView_cv_borderColor, DEFAULT_BORDER_COLOR)
+            mTextMode = a.getBoolean(R.styleable.CircleImageView_AvatarTextModeEnabled, mTextMode)
+            mAvatarColor = a.getColor(R.styleable.CircleImageView_avatarColor, DEFAULT_AVATAR_COLOR)
+            mAvatarTextColor = a.getColor(R.styleable.CircleImageView_AvatarTextColor, DEFAULT_AVATAR_TEXT_COLOR)
+            mTextSize = a.getInt(R.styleable.CircleImageView_AvatarTextSize, DEFAULT_TEXT_SIZE)
             mText = a.getString(R.styleable.CircleImageView_AvatarText)
             a.recycle()
         }
@@ -96,28 +91,29 @@ class CircleImageView @JvmOverloads constructor(
         mStrokePaint = Paint(ANTI_ALIAS_FLAG)
         mStrokeBounds = RectF()
         mBitmapDrawBounds = RectF()
-        //mStrokePaint.color = strokeColor
-        mStrokePaint.color = cv_borderColor
+        mStrokePaint.color = mBorderColor
         mStrokePaint.style = Paint.Style.STROKE
-        mStrokePaint.strokeWidth = cv_borderWidth
+        mStrokePaint.strokeWidth = mBorderWidth
 
 
-            mInitialized = true
-            setupBitmap()
+        mInitialized = true
+        setupBitmap()
 
 
 
         mTextPaint = Paint(ANTI_ALIAS_FLAG)
         mTextPaint.textAlign = Align.CENTER
-     //   mTextPaint.color = textColor
         mTextPaint.color = mAvatarTextColor
 
-        mTextPaint.textSize = textSize.toFloat()
+        mTextPaint.textSize = mTextSize.toFloat()
 
         mTextBounds = Rect()
 
-
-        updateTextBounds()
+        if (mText.equals(DEFAULT_TEXT)||mText.isNullOrBlank()){
+            disableTextMode()
+        } else {
+            updateTextBounds()
+        }
         mBackgroundPaint = Paint(ANTI_ALIAS_FLAG)
         mBackgroundPaint.color = mAvatarColor
         mBackgroundPaint.style = Paint.Style.FILL
@@ -128,23 +124,38 @@ class CircleImageView @JvmOverloads constructor(
 
 }
      @Dimension fun getBorderWidth():Int{
-        return cv_borderWidth.toInt()
+        return mBorderWidth.toInt()
     }
 
    fun setBorderWidth(@Dimension dp: Int){
-      cv_borderWidth = dp.toFloat()
+      mBorderWidth = dpToPx(dp)
+       invalidate()
     }
    fun getBorderColor():Int{
-      return cv_borderColor
+      return mBorderColor
     }
    fun setBorderColor(hex:String){
-       cv_borderColor = Color.parseColor(hex)
+       mBorderColor = Color.parseColor(hex)
+       invalidate()
 
    }
    fun setBorderColor(@ColorRes colorId: Int){
-       cv_borderColor = colorId
+       mBorderColor = colorId
+       invalidate()
    }
 
+    fun dpToPx(dp: Int): Float {
+        return (dp.toFloat() * Resources.getSystem().displayMetrics.density)
+    }
+    /**
+     * Choose one type Int or Float, mark another one as null
+     * @return the float value of converted type
+     */
+
+
+    fun pxToDp(px: Int): Int {
+        return (px / Resources.getSystem().displayMetrics.density).toInt()
+    }
     override fun setImageResource(@DrawableRes resId: Int) {
         super.setImageResource(resId)
         setupBitmap()
@@ -186,7 +197,12 @@ class CircleImageView @JvmOverloads constructor(
         return bitmap
     }
 
-
+     fun enableTextMode(){
+        mTextMode = true
+    }
+    fun disableTextMode(){
+        mTextMode = false
+    }
 
 
     private fun updateCircleDrawBounds(bounds: RectF) {
@@ -223,11 +239,12 @@ class CircleImageView @JvmOverloads constructor(
 
     fun setText(text: String?){
         mText = text
+        invalidate()
     }
 
     private fun convertToInitials(avatarText: String?) : String? {
         if (avatarText.isNullOrBlank()){
-            return null
+            return ""
         }
 
         val splittedString = Utils.parseFullName(avatarText, "_")
@@ -243,15 +260,17 @@ class CircleImageView @JvmOverloads constructor(
         if (!mInitialized) {
             return
         }
-        mBitmap = getBitmapFromDrawable(drawable)!!
+        mBitmap = getBitmapFromDrawable(drawable)
         if (mBitmap == null) {
-            return
+              enableTextMode()
+              return
         }
-
-        mBitmapShader = BitmapShader(mBitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
+        disableTextMode()
+        mBitmapShader = BitmapShader(mBitmap!!, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
         mBitmapPaint.shader = mBitmapShader
         updateBitmapSize()
     }
+
 
 
     private fun updateBitmapSize() {
@@ -262,15 +281,15 @@ class CircleImageView @JvmOverloads constructor(
 
         val scale: Float
 
-        if (mBitmap.width < mBitmap.height) {
-            scale = mBitmapDrawBounds.width() / mBitmap.width.toFloat()
+        if (mBitmap!!.width < mBitmap!!.height) {
+            scale = mBitmapDrawBounds.width() / mBitmap!!.width.toFloat()
 
             x = mBitmapDrawBounds.left
 
-            y = mBitmapDrawBounds.top - mBitmap.height * scale / 2f + mBitmapDrawBounds.width() / 2f
+            y = mBitmapDrawBounds.top - mBitmap!!.height * scale / 2f + mBitmapDrawBounds.width() / 2f
         } else {
-            scale = mBitmapDrawBounds.height() / mBitmap.height.toFloat()
-            x = mBitmapDrawBounds.left - mBitmap.width * scale / 2f + mBitmapDrawBounds.width() / 2f
+            scale = mBitmapDrawBounds.height() / mBitmap!!.height.toFloat()
+            x = mBitmapDrawBounds.left - mBitmap!!.width * scale / 2f + mBitmapDrawBounds.width() / 2f
             y = mBitmapDrawBounds.top
         }
 
@@ -279,26 +298,49 @@ class CircleImageView @JvmOverloads constructor(
         mBitmapShader.setLocalMatrix(mShaderMatrix)
     }
 
+
+
     override fun onDraw(canvas: Canvas) {
-        val initials = convertToInitials(mText)
-        if(!mTextMode || initials.isNullOrBlank()){
-            drawBitmap(canvas)
-            drawStroke(canvas)
+
+          if(!mTextMode){
+              drawBitmap(canvas)
+              drawStroke(canvas)
         } else {
-            updateTextBounds()
-            val textBottom = mBackgroundBounds.centerY() - mTextBounds.exactCenterY()
-            canvas.drawOval(mBackgroundBounds, mBackgroundPaint)
-            Log.d("M_Civ_OnDraw", "mText = $mText")
-            canvas.drawText(initials, mBackgroundBounds.centerX(), textBottom, mTextPaint)
+
+              val textBottom = mBackgroundBounds.centerY() - mTextBounds.exactCenterY()
+              canvas.drawOval(mBackgroundBounds, mBackgroundPaint)
+              Log.d("M_CircleImageView", "mInitials = $mInitials, Avatarcolor = $mAvatarTextColor, txtcolor = ${mTextPaint.color}")
+              canvas.drawText(mInitials!!, mBackgroundBounds.centerX(), textBottom, mTextPaint)
 
 
         }
 
     }
 
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
+        if (!mText.isNullOrBlank()) {
+            Log.d("M_onLayout1", "mtext = $mText \n mInitials = $mInitials")
+            mInitials = convertToInitials(mText)!!
+            Log.d("M_onLayout2", "mtext = $mText \n mInitials = $mInitials")
+            enableTextMode()
+        } else {
+            disableTextMode()
+            mInitials = DEFAULT_TEXT
+
+
+        }
+
+        updateTextBounds()
+
+        if (mBitmap == null){
+            enableTextMode()
+        }
+
+    }
 
     private fun updateTextBounds() {
-        mTextPaint.getTextBounds(mText, 0, mText!!.length, mTextBounds)
+        mTextPaint.getTextBounds(mInitials, 0, mInitials!!.length, mTextBounds)
     }
 
 

@@ -44,11 +44,10 @@
                        android:layout_width="@dimen/avatar_round_size"
                        android:layout_height="@dimen/avatar_round_size"
                        android:src="@drawable/avatar_default"
-                       app:cv_borderColor="@color/color_accent"
+                       app:cv_borderColor="@color/color_white"
                        app:cv_borderWidth="@dimen/spacing_tiny_4"
-                       app:AvatarTextColor="@color/color_accent"
-                       app:AvatarText=""
-                       app:AvatarTextModeEnabled="true"
+                       app:AvatarTextColor="@color/color_white"
+                       app:avatarColor="@color/color_accent"
                        android:layout_centerHorizontal="true"
             />
 

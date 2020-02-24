@@ -38,12 +38,14 @@ class ProfileActivity : AppCompatActivity(){
         initViews(savedInstanceState)
         initViewModel()
         validateInput()
-        setAvatarText()
+
         Log.d("M_ProfileActivity", "onCreate")
     }
 
     private fun setAvatarText() {
         iv_avatar.setText(viewModel.getProfileData().value?.nickName)
+        iv_avatar.enableTextMode()
+
     }
 
 
@@ -70,6 +72,7 @@ class ProfileActivity : AppCompatActivity(){
             if (isEditMode) saveProfileInfo()
             isEditMode = !isEditMode
             showCurrentMode(isEditMode)
+
         }
 
         btn_switch_theme.setOnClickListener {
@@ -95,6 +98,7 @@ class ProfileActivity : AppCompatActivity(){
                   v.text = it[k].toString()
               }
           }
+        setAvatarText()
     }
 
 
@@ -107,6 +111,7 @@ class ProfileActivity : AppCompatActivity(){
 
         ).apply {
             viewModel.saveProfileData(this)
+
         }
 
     }

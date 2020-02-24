@@ -40,6 +40,9 @@ object Utils {
     }
 
     fun transliteration(payLoad: String, divider: String = " "): String {
+        if (payLoad.isNullOrBlank()){
+            return ""
+        }
         val hashmap = hashMapOf<String, String>("А" to "A",
             "а" to "a", "Б" to "B", "б" to "b", "В" to "V", "в" to "v",
             "Г" to "G", "г" to "g", "Д" to "D", "д" to "d", "Е" to "E",
